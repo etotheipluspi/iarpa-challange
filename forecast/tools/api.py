@@ -281,12 +281,12 @@ class GfcApi(object):
         if self.verbose:
             print('Get Pages for {}'.format(url))
             print(params)
-        page = 0
+        page = 1
         maxPage = 1
         
         all_results = []
         this_batch = []
-        while page < maxPage: 
+        while page <= maxPage: 
             
             params['page']=page
             resp = self._get(url=url,params=params)
