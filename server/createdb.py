@@ -1,7 +1,7 @@
 import os
+import dateutil.parser
 import server.database as db
 from forecast.tools.api import GfcApi
-from datetime import datetime
 
 gfc_creds = dict(
     token=os.environ['GFC_TOKEN'],
@@ -17,10 +17,7 @@ def clear_table(session, table):
 
 
 def get_time(time_str):
-    time_str = (time_str[:16].replace('-', ' ')
-                             .replace(':', ' ')
-                             .replace('T', ' '))
-    return datetime.strptime(time_str, '%Y %m %d %H %M')
+    return dateutil.parser.parse(time_str)
 
 
 def get_topic(question):
@@ -72,8 +69,8 @@ def create_answers_table(session):
     questions = api.get_questions()
     for q in questions:
         session.add_all([db.Answers(
-            question_id=q['id'],
             answer_id=a['id'],
+            question_id=q['id'],
             name=a.get('name', None)
         ) for a in q['answers']])
     session.commit()
@@ -84,18 +81,19 @@ def create_predictions_table(session):
     predictions = api.get_human_forecasts()
     for p in predictions:
         session.add_all([db.Predictions(
+            prediction_id=a['id'],
             question_id=p['question_id'],
             answer_id=a['answer_id'],
-            predictor_id=a['membership_guid'],
+            user_id=a['membership_guid'],
             forecasted_probability=a['forecasted_probability'],
-            rationale=p.get('rationale', None)
+            rationale=p.get('rationale', None),
+            submitted_at=dateutil.parser.parse(p['updated_at'])
         ) for a in p['predictions']])
     session.commit()
 
 
 def main():
     session = db.create_session()
-    clear_table(session, db.OurPredictions)
     create_questions_table(session)
     create_answers_table(session)
     create_predictions_table(session)
