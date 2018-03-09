@@ -21,10 +21,10 @@ def get_question_ids(session):
 def log(session, question_id, method_name, preds):
     session.add_all([db.OurPredictions(
         question_id=question_id,
-        answer_id=aid,
+        answer_id=p['answer_id'],
         method_name=method_name,
-        forecasted_probability=prob
-    ) for aid, prob in preds.iteritems()])
+        forecasted_probability=p['value']
+    ) for p in preds])
     session.commit()
 
 
@@ -33,11 +33,13 @@ def submit_all(session, question_ids):
         for method in methods:
             print 'Submitting to question', qid, 'using method', method.name
             preds = method.predict(session, qid)
-            log(session, qid, method.name, preds)
             response = api.submit_forecast(qid, method.name, preds)
-            print response if 'errors' in response else 'Success'
+            if 'errors' not in response:
+                print 'Success'
+                log(session, qid, method.name, preds)
+            else:
+                print response
             print
-            # TODO: debug why responses to non-binary questions throw errors
 
 
 def main():
