@@ -1,5 +1,6 @@
 import os
 import server.database as db
+from datetime import datetime
 from forecast.tools.api import GfcApi
 from methods.random_predictor import RandomPredictor
 
@@ -23,7 +24,8 @@ def log(session, question_id, method_name, preds):
         question_id=question_id,
         answer_id=p['answer_id'],
         method_name=method_name,
-        forecasted_probability=p['value']
+        forecasted_probability=p['value'],
+        submitted_at=datetime.utcnow()
     ) for p in preds])
     session.commit()
 
