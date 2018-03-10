@@ -2,7 +2,7 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import Column, Integer, String, REAL, DateTime
+from sqlalchemy import Column, Integer, String, Boolean, REAL, DateTime
 
 db_args = dict(
     user=os.environ['GFC_USER'],
@@ -35,7 +35,6 @@ class Questions(Base):
     domain = Column(String)
     country = Column(String)
     generation_method = Column(String)
-    correct_answer_id = Column(Integer)
 
 
 class Answers(Base):
@@ -45,6 +44,7 @@ class Answers(Base):
     answer_id = Column(Integer, primary_key=True)
     question_id = Column(Integer, nullable=False)
     name = Column(String)
+    is_correct = Column(Boolean)
 
 
 class Predictions(Base):

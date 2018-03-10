@@ -45,6 +45,10 @@ def get_generation_method(question):
     return metadata.get('IFP Generation Method', None)
 
 
+def get_iscorrect(prob):
+    return prob if prob in (0, 1) else None
+
+
 def create_questions_table(session, after_time):
     questions = api.get_questions(updated_after=after_time)
     for q in questions:
@@ -67,7 +71,8 @@ def create_answers_table(session, after_time):
             session.merge(db.Answers(
                 answer_id=a['id'],
                 question_id=q['id'],
-                name=a.get('name', None)))
+                name=a.get('name', None),
+                is_correct=get_iscorrect(a['probability'])))
     session.commit()
 
 
