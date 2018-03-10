@@ -91,14 +91,10 @@ def create_predictions_table(session, after_time):
     session.commit()
 
 
-def main():
+def updatedb():
     session = db.create_session()
     after_time = datetime.utcnow() - timedelta(days=2)
     create_questions_table(session, after_time)
     create_answers_table(session, after_time)
     create_predictions_table(session, after_time)
     session.close()
-
-
-if __name__ == '__main__':
-    main()

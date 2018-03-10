@@ -42,14 +42,12 @@ def submit_all(session, question_ids):
             else:
                 print response
             print
+    return [m.name for m in methods]
 
 
-def main():
+def submit():
     session = db.create_session()
     question_ids = get_question_ids(session)
-    submit_all(session, question_ids)
+    method_names = submit_all(session, question_ids)
     session.close()
-
-
-if __name__ == '__main__':
-    main()
+    return method_names
