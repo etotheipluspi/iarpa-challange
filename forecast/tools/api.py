@@ -1,12 +1,9 @@
 from __future__ import print_function
-
 import requests
 import time
 import datetime
 
 from pprint import pprint #This is just to make things look pretty...
-
-#Make this python 2 and 3 compliant
 
 class GfcApi(object):
     """
