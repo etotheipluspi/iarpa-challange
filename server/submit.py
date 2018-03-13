@@ -3,15 +3,22 @@ import server.database as db
 from datetime import datetime
 from forecast.tools.api import GfcApi
 from methods.random_predictor import RandomPredictor
+from methods.median_predictor import MedianPredictor
+from methods.median_rationale_predictor import MedianRationalePredictor
 
 gfc_creds = dict(
     token=os.environ['GFC_TOKEN'],
     server='https://api.iarpagfchallenge.com'
 )
 
+if 'staging' not in gfc_creds['server']:
+    raise Exception('''Are you sure you want to submit to the production server? If so, comment these lines and re-run the submission script.''')
+
 api = GfcApi(gfc_creds['token'], gfc_creds['server'])
 
-methods = [RandomPredictor()]  # TODO: add more methods.
+methods = [RandomPredictor(),
+           MedianPredictor(),
+           MedianRationalePredictor()]
 
 
 def get_question_ids(session):
