@@ -21,8 +21,10 @@ methods = [RandomPredictor(),
            MedianRationalePredictor()]
 
 
-def get_question_ids(session):
-    query = session.query(db.Questions.question_id).distinct()
+def get_active_question_ids(session):
+    query = (session.query(db.Questions.question_id)
+                    .filter(db.Questions.ends_at > datetime.utcnow())
+                    .distinct())
     return [x[0] for x in list(query)]
 
 
@@ -54,7 +56,7 @@ def submit_all(session, question_ids):
 
 def submit():
     session = db.create_session()
-    question_ids = get_question_ids(session)
+    question_ids = get_active_question_ids(session)
     method_names = submit_all(session, question_ids)
     session.close()
     return method_names
