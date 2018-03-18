@@ -4,6 +4,8 @@ from datetime import datetime, timedelta
 import server.database as db
 from forecast.tools.api import GfcApi
 
+COMPETITION_START = datetime(2018, 3, 6)
+
 gfc_creds = dict(
     token=os.environ['GFC_TOKEN'],
     server='https://api.iarpagfchallenge.com'
@@ -49,8 +51,15 @@ def get_iscorrect(prob):
     return prob if prob in (0, 1) else None
 
 
+def get_questions(after_time):
+    questions = api.get_questions(status='all',
+                                  created_after=COMPETITION_START,
+                                  updated_after=after_time)
+    return questions
+
+
 def create_questions_table(session, after_time):
-    questions = api.get_questions(updated_after=after_time)
+    questions = get_questions(after_time)
     for q in questions:
         session.merge(db.Questions(
             question_id=q['id'],
@@ -65,7 +74,7 @@ def create_questions_table(session, after_time):
 
 
 def create_answers_table(session, after_time):
-    questions = api.get_questions(updated_after=after_time)
+    questions = get_questions(after_time)
     for q in questions:
         for a in q['answers']:
             session.merge(db.Answers(
