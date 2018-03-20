@@ -35,6 +35,7 @@ class Questions(Base):
     domain = Column(String)
     country = Column(String)
     generation_method = Column(String)
+    use_ordinal_scoring = Column(Boolean)
 
 
 class Answers(Base):
