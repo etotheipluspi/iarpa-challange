@@ -104,9 +104,9 @@ class GfcApi(object):
             params['created_before'] = created_before.isoformat()
         if created_after:
             params['created_after'] = created_after.isoformat()
-        if created_before:
+        if updated_before:
             params['updated_before'] = updated_before.isoformat()
-        if created_after:
+        if updated_after:
             params['updated_after'] = updated_after.isoformat()
         if status:
             params['status'] = status
