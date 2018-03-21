@@ -82,7 +82,8 @@ def create_answers_table(session, after_time):
                 answer_id=a['id'],
                 question_id=q['id'],
                 name=a.get('name', None),
-                is_correct=get_iscorrect(a['probability'])))
+                is_correct=get_iscorrect(a['probability']),
+                sort_order=a['sort_order']))
     session.commit()
 
 
