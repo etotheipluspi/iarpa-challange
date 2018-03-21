@@ -46,6 +46,7 @@ class Answers(Base):
     question_id = Column(Integer, nullable=False)
     name = Column(String)
     is_correct = Column(Boolean)
+    sort_order = Column(Integer)
 
 
 class Predictions(Base):
