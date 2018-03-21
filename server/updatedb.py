@@ -69,7 +69,8 @@ def create_questions_table(session, after_time):
             topic=get_topic(q),
             domain=get_domain(q),
             country=get_country(q),
-            generation_method=get_generation_method(q)))
+            generation_method=get_generation_method(q),
+            use_ordinal_scoring=q['use_ordinal_scoring']))
     session.commit()
 
 
@@ -81,7 +82,8 @@ def create_answers_table(session, after_time):
                 answer_id=a['id'],
                 question_id=q['id'],
                 name=a.get('name', None),
-                is_correct=get_iscorrect(a['probability'])))
+                is_correct=get_iscorrect(a['probability']),
+                sort_order=a['sort_order']))
     session.commit()
 
 

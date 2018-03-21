@@ -35,6 +35,7 @@ class Questions(Base):
     domain = Column(String)
     country = Column(String)
     generation_method = Column(String)
+    use_ordinal_scoring = Column(Boolean)
 
 
 class Answers(Base):
@@ -45,6 +46,7 @@ class Answers(Base):
     question_id = Column(Integer, nullable=False)
     name = Column(String)
     is_correct = Column(Boolean)
+    sort_order = Column(Integer)
 
 
 class Predictions(Base):
