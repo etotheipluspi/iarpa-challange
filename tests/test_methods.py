@@ -2,6 +2,7 @@ from server.database import create_session
 from methods.random_predictor import RandomPredictor
 from methods.median_predictor import MedianPredictor
 from methods.median_rationale_predictor import MedianRationalePredictor
+from methods.topkmean_predictor import TopKMeanPredictor
 
 BINARY_QID = 655
 BINARY_AID = 1950
@@ -21,6 +22,12 @@ def test_median_predictor():
 
 def test_median_rationale_predictor():
     predictor = MedianRationalePredictor()
+    validate_predictor(predictor)
+
+
+# This unit test can take a while
+def test_top_k_mean_predictor():
+    predictor = TopKMeanPredictor(10)
     validate_predictor(predictor)
 
 
