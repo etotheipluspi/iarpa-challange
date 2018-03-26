@@ -6,6 +6,7 @@ from methods.random_predictor import RandomPredictor
 from methods.median_predictor import MedianPredictor
 from methods.median_rationale_predictor import MedianRationalePredictor
 from methods.topkmean_predictor import TopKMeanPredictor
+from methods.topkmean_extreme_predictor import TopKMeanExtremePredictor
 
 gfc_creds = dict(
     token=os.environ['GFC_TOKEN'],
@@ -21,7 +22,8 @@ methods = [RandomPredictor(),
            MedianPredictor(),
            MedianRationalePredictor(),
            TopKMeanPredictor(5),
-           TopKMeanPredictor(10)]
+           TopKMeanPredictor(10),
+           TopKMeanExtremePredictor(10)]
 
 
 def get_active_question_ids(session):
