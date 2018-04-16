@@ -14,9 +14,9 @@ class InvScorePredictor:
 
     def __init__(self, squared=False):
         if squared:
-            self.name = 'invscore'
-        else:
             self.name = 'invscore_sq'
+        else:
+            self.name = 'invscore'
         self.squared = squared
         self.session = db.create_session()
         self.all_u = self.get_all_userids(self.session)
@@ -115,26 +115,34 @@ class InvScorePredictor:
         for idx, (_, prob) in enumerate(user_pred):
             pred[idx]['value'] += prob
 
-    def normalize(self, pred):
-        s = 0
-        for p in pred:
-            s += p['value']
-        for p in pred:
-            if p['value'] != 0:
-                p['value'] /= s
+    def normalize(self, pred, norm_factor):
+        if len(pred) == 1:
+            pred[0]['value'] /= norm_factor
+        else:
+            s = 0
+            for p in pred:
+                s += p['value']
+            for p in pred:
+                if p['value'] != 0:
+                    p['value'] /= s
 
-    def get_pred_dict(self, user_preds, answer_ids):
+    def get_pred_dict(self, user_preds, answer_ids, norm_factor=None):
         pred = [{'answer_id': aid, 'value': 0} for aid in answer_ids]
         for user_pred in user_preds:
             if None in [p[1] for p in user_pred]:
                 continue
             self.add_pred(pred, user_pred)
-        self.normalize(pred)
+        self.normalize(pred, norm_factor)
         return pred
 
     def predict(self, session, question_id):
         answer_ids = self.get_answer_ids(session, question_id)
         user_preds = []
+        if len(answer_ids) == 1:
+            is_binary = True
+            norm_factor = 0.
+        else:
+            is_binary = False
         for user_inf in self.all_u:
             # user_inf contains (user_id, score)
             user_pred = self.get_preds(session,
@@ -144,9 +152,17 @@ class InvScorePredictor:
             for p in user_pred:
                 if p[1] is not None:
                     if self.squared:
-                        p[1] *= 1.0 / (user_inf[1] + 0.001) ** 2
+                        factor = 1.0 / (user_inf[1] + 0.001) ** 2
                     else:
-                        p[1] *= 1.0 / (user_inf[1] + 0.001)
+                        factor = 1.0 / (user_inf[1] + 0.001)
+                    p[1] *= factor
+                    if is_binary:
+                        norm_factor += factor
             user_preds.append(user_pred)
-        pred = self.get_pred_dict(user_preds, answer_ids)
+        if is_binary:
+            pred = self.get_pred_dict(user_preds,
+                                      answer_ids,
+                                      norm_factor=norm_factor)
+        else:
+            pred = self.get_pred_dict(user_preds, answer_ids)
         return pred
