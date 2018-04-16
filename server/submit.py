@@ -7,6 +7,7 @@ from methods.median_predictor import MedianPredictor
 from methods.median_rationale_predictor import MedianRationalePredictor
 from methods.topkmean_predictor import TopKMeanPredictor
 from methods.topkmean_extreme_predictor import TopKMeanExtremePredictor
+from methods.inverse_score_predictor import InvScorePredictor
 
 gfc_creds = dict(
     token=os.environ['GFC_TOKEN'],
@@ -21,9 +22,12 @@ api = GfcApi(gfc_creds['token'], gfc_creds['server'])
 methods = [RandomPredictor(),
            MedianPredictor(),
            MedianRationalePredictor(),
+           TopKMeanPredictor(2),
            TopKMeanPredictor(5),
            TopKMeanPredictor(10),
-           TopKMeanExtremePredictor(10)]
+           TopKMeanExtremePredictor(10),
+           InvScorePredictor(),
+           InvScorePredictor(squared=True)]
 
 
 def get_active_question_ids(session):
