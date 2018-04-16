@@ -112,7 +112,8 @@ class TopKMeanPredictor:
 
     def normalize(self, pred, n):
         for p in pred:
-            p['value'] /= n
+            if p['value'] != 0:
+                p['value'] /= n
 
     def get_pred_dict(self, user_preds, answer_ids):
         pred = [{'answer_id': aid, 'value': 0} for aid in answer_ids]
