@@ -4,6 +4,7 @@ from methods.median_predictor import MedianPredictor
 from methods.median_rationale_predictor import MedianRationalePredictor
 from methods.topkmean_predictor import TopKMeanPredictor
 from methods.topkmean_extreme_predictor import TopKMeanExtremePredictor
+from methods.inverse_score_predictor import InvScorePredictor
 
 BINARY_QID = 655
 BINARY_AID = 1950
@@ -35,6 +36,12 @@ def test_top_k_mean_predictor():
 # This unit test can take a while
 def test_top_k_mean_extreme_predictor():
     predictor = TopKMeanExtremePredictor(10)
+    validate_predictor(predictor)
+
+
+# This unit test can take a while
+def test_invscore_predictor():
+    predictor = InvScorePredictor()
     validate_predictor(predictor)
 
 
