@@ -25,7 +25,6 @@ def test_brier_score():
 
 def test_ordinal_brier_score():
     score1 = get_ordinal_score(PREDS1, CORRECT_ANSWER)
-    print score1
     assert isapprox(score1, ORDINAL1)
     score2 = get_ordinal_score(PREDS2, CORRECT_ANSWER)
     assert isapprox(score2, ORDINAL2)
