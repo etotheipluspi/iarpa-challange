@@ -122,8 +122,8 @@ class InvScorePredictor:
             s = 0
             for p in pred:
                 s += p['value']
-            for p in pred:
-                if p['value'] != 0:
+            if s:
+                for p in pred:
                     p['value'] /= s
 
     def get_pred_dict(self, user_preds, answer_ids, norm_factor=None):

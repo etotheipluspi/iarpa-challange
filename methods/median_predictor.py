@@ -31,7 +31,7 @@ class MedianPredictor:
     def normalize(self, prediction):
         total = sum(p['value'] for p in prediction)
         for p in prediction:
-            if p['value'] != 0:
+            if total:
                 p['value'] /= total
 
     def predict(self, session, question_id, use_rationale=False):

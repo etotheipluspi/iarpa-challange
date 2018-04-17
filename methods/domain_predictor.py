@@ -121,7 +121,7 @@ class DomainPredictor:
             score = self.get_user_score(session, user_id, domain)
             topk.append((user_id, score))
         topk_sorted = sorted(topk, key=lambda x: x[1])
-        return [x[0] for x in topk_sorted][:self.k]
+        return [x[0] for x in topk_sorted][:100]
 
     def get_topk_all_domains(self, session):
         domains = self.get_domains(session)
@@ -135,14 +135,17 @@ class DomainPredictor:
             pred[idx]['value'] += prob
 
     def normalize(self, pred, n):
+        if not n:
+            return
         for p in pred:
-            if p['value'] != 0:
                 p['value'] /= n
 
     def get_pred_dict(self, user_preds, answer_ids):
         pred = [{'answer_id': aid, 'value': 0} for aid in answer_ids]
         n_preds = 0
         for user_pred in user_preds:
+            if n_preds == self.k:
+                break
             if None in [p[1] for p in user_pred]:
                 continue
             n_preds += 1

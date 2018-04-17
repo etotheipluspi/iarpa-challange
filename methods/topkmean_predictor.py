@@ -13,8 +13,9 @@ class TopKMeanPredictor:
 
     def __init__(self, k):
         self.name = 'top' + str(k) + 'mean'
+        self.k = k
         self.session = db.create_session()
-        self.topk = self.get_topk_userids(self.session, k)
+        self.topk = self.get_topk_userids(self.session)
         self.session.close()
 
     def get_ended_question_ids(self, session):
@@ -97,28 +98,31 @@ class TopKMeanPredictor:
             score += self.get_score(session, user_id, question_id)
         return score / len(question_ids)
 
-    def get_topk_userids(self, session, k):
+    def get_topk_userids(self, session):
         user_ids = self.get_user_ids(session)
         topk = []
         for user_id in user_ids:
             score = self.get_user_score(session, user_id)
             topk.append((user_id, score))
         topk_sorted = sorted(topk, key=lambda x: x[1])
-        return [x[0] for x in topk_sorted][:k]
+        return [x[0] for x in topk_sorted][:100]
 
     def add_pred(self, pred, user_pred):
         for idx, (_, prob) in enumerate(user_pred):
             pred[idx]['value'] += prob
 
     def normalize(self, pred, n):
+        if not n:
+            return
         for p in pred:
-            if p['value'] != 0:
-                p['value'] /= n
+            p['value'] /= n
 
     def get_pred_dict(self, user_preds, answer_ids):
         pred = [{'answer_id': aid, 'value': 0} for aid in answer_ids]
         n_preds = 0
         for user_pred in user_preds:
+            if n_preds == self.k:
+                break
             if None in [p[1] for p in user_pred]:
                 continue
             n_preds += 1
