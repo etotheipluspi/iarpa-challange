@@ -5,11 +5,13 @@ from methods.median_rationale_predictor import MedianRationalePredictor
 from methods.topkmean_predictor import TopKMeanPredictor
 from methods.topkmean_extreme_predictor import TopKMeanExtremePredictor
 from methods.inverse_score_predictor import InvScorePredictor
+from methods.domain_predictor import DomainPredictor
 
 BINARY_QID = 655
 BINARY_AID = 1950
 MULTIANSWER_QID = 665
 MULTIANSWER_AIDS = [1976, 1977, 1978, 1979, 1980]
+K = 10
 
 
 def test_random_predictor():
@@ -29,19 +31,25 @@ def test_median_rationale_predictor():
 
 # This unit test can take a while
 def test_top_k_mean_predictor():
-    predictor = TopKMeanPredictor(10)
+    predictor = TopKMeanPredictor(K)
     validate_predictor(predictor)
 
 
 # This unit test can take a while
 def test_top_k_mean_extreme_predictor():
-    predictor = TopKMeanExtremePredictor(10)
+    predictor = TopKMeanExtremePredictor(K)
     validate_predictor(predictor)
 
 
 # This unit test can take a while
 def test_invscore_predictor():
     predictor = InvScorePredictor()
+    validate_predictor(predictor)
+
+
+# This unit test can take a while
+def test_domain_predictor():
+    predictor = DomainPredictor(K)
     validate_predictor(predictor)
 
 
