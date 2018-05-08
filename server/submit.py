@@ -1,5 +1,6 @@
 import os
 import server.database as db
+import utils.queries as qry
 from datetime import datetime
 from forecast.tools.api import GfcApi
 from methods.random_predictor import RandomPredictor
@@ -7,7 +8,6 @@ from methods.median_predictor import MedianPredictor
 from methods.median_rationale_predictor import MedianRationalePredictor
 from methods.topkmean_predictor import TopKMeanPredictor
 from methods.topkmean_extreme_predictor import TopKMeanExtremePredictor
-from methods.inverse_score_predictor import InvScorePredictor
 from methods.domain_predictor import DomainPredictor
 
 gfc_creds = dict(
@@ -20,25 +20,19 @@ if 'staging' not in gfc_creds['server']:
 
 api = GfcApi(gfc_creds['token'], gfc_creds['server'])
 
-methods = [RandomPredictor(),
-           MedianPredictor(),
-           MedianRationalePredictor(),
-           TopKMeanPredictor(2),
-           TopKMeanPredictor(5),
-           TopKMeanPredictor(10),
-           TopKMeanExtremePredictor(10),
-           InvScorePredictor(),
-           InvScorePredictor(squared=True),
-           DomainPredictor(2),
-           DomainPredictor(5),
-           DomainPredictor(10)]
 
-
-def get_active_question_ids(session):
-    query = (session.query(db.Questions.question_id)
-                    .filter(db.Questions.ends_at > datetime.utcnow())
-                    .distinct())
-    return [x[0] for x in list(query)]
+def get_methods(predictors, predictors_domains):
+    methods = [RandomPredictor(),
+               MedianPredictor(),
+               MedianRationalePredictor(),
+               TopKMeanPredictor(2, predictors),
+               TopKMeanPredictor(5, predictors),
+               TopKMeanPredictor(10, predictors),
+               TopKMeanExtremePredictor(10, predictors),
+               DomainPredictor(2, predictors_domains),
+               DomainPredictor(5, predictors_domains),
+               DomainPredictor(10, predictors_domains)]
+    return methods
 
 
 def log(session, question_id, method_name, preds):
@@ -52,8 +46,10 @@ def log(session, question_id, method_name, preds):
     session.commit()
 
 
-def submit_all(session, question_ids):
-    for qid in question_ids:
+def submit_all(session, methods, question_ids):
+    print 'Submitting to questions...'
+    for idx, qid in enumerate(question_ids):
+        print 'Submitting to question number', idx + 1, 'of', len(question_ids)
         for method in methods:
             print 'Submitting to question', qid, 'using method', method.name
             preds = method.predict(session, qid)
@@ -64,12 +60,17 @@ def submit_all(session, question_ids):
             else:
                 print response
             print
+    print 'Submission complete.'
     return [m.name for m in methods]
 
 
 def submit():
     session = db.create_session()
-    question_ids = get_active_question_ids(session)
-    method_names = submit_all(session, question_ids)
+    user_ids = qry.get_user_ids(session)
+    predictors = qry.get_sorted_predictors(session, user_ids)
+    predictors_domains = qry.get_sorted_predictors_domains(session, user_ids)
+    methods = get_methods(predictors, predictors_domains)
+    question_ids = qry.get_active_question_ids(session)
+    method_names = submit_all(session, methods, question_ids)
     session.close()
     return method_names

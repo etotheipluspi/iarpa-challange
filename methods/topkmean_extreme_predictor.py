@@ -8,8 +8,8 @@ class TopKMeanExtremePredictor:
     Submits extremized predictions from top k mean predictor.
     """
 
-    def __init__(self, k):
-        self.topk_predictor = TopKMeanPredictor(k)
+    def __init__(self, k, sorted_predictors):
+        self.topk_predictor = TopKMeanPredictor(k, sorted_predictors)
         self.name = self.topk_predictor.name + '_extreme'
 
     def predict(self, session, question_id):
