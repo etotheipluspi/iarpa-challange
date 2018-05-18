@@ -9,6 +9,7 @@ from methods.median_rationale_predictor import MedianRationalePredictor
 from methods.topkmean_predictor import TopKMeanPredictor
 from methods.topkmean_extreme_predictor import TopKMeanExtremePredictor
 from methods.domain_predictor import DomainPredictor
+from methods.inverse_score_predictor import InvScorePredictor
 
 gfc_creds = dict(
     token=os.environ['GFC_TOKEN'],
@@ -21,7 +22,7 @@ if 'staging' not in gfc_creds['server']:
 api = GfcApi(gfc_creds['token'], gfc_creds['server'])
 
 
-def get_methods(predictors, predictors_domains):
+def get_methods(predictors, scores, predictors_domains):
     methods = [RandomPredictor(),
                MedianPredictor(),
                MedianRationalePredictor(),
@@ -31,7 +32,9 @@ def get_methods(predictors, predictors_domains):
                TopKMeanExtremePredictor(10, predictors),
                DomainPredictor(2, predictors_domains),
                DomainPredictor(5, predictors_domains),
-               DomainPredictor(10, predictors_domains)]
+               DomainPredictor(10, predictors_domains),
+               InvScorePredictor(predictors, scores),
+               InvScorePredictor(predictors, scores, squared=True)]
     return methods
 
 
@@ -67,9 +70,9 @@ def submit_all(session, methods, question_ids):
 def submit():
     session = db.create_session()
     user_ids = qry.get_user_ids(session)
-    predictors = qry.get_sorted_predictors(session, user_ids)
+    predictors, scores = qry.get_sorted_predictors(session, user_ids)
     predictors_domains = qry.get_sorted_predictors_domains(session, user_ids)
-    methods = get_methods(predictors, predictors_domains)
+    methods = get_methods(predictors, scores, predictors_domains)
     question_ids = qry.get_active_question_ids(session)
     method_names = submit_all(session, methods, question_ids)
     session.close()

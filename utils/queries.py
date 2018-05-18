@@ -137,7 +137,7 @@ def get_sorted_predictors_helper(session, user_ids, question_ids):
         predictors.append((user_id, score))
     sorted_predictors = sorted(predictors, key=lambda x: x[1])
     print 'Scoring predictors complete.'
-    return [x[0] for x in sorted_predictors]
+    return zip(*sorted_predictors)
 
 
 def get_sorted_predictors(session, user_ids):
@@ -147,7 +147,7 @@ def get_sorted_predictors(session, user_ids):
 
 def get_sorted_predictors_domain(session, user_ids, domain):
     question_ids = get_question_ids(session, domain=domain)
-    return get_sorted_predictors_helper(session, user_ids, question_ids)
+    return get_sorted_predictors_helper(session, user_ids, question_ids)[0]
 
 
 def get_sorted_predictors_domains(session, user_ids):
