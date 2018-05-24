@@ -29,10 +29,14 @@ def get_methods(predictors, scores, predictors_domains):
                TopKMeanPredictor(2, predictors),
                TopKMeanPredictor(5, predictors),
                TopKMeanPredictor(10, predictors),
+               TopKMeanPredictor(20, predictors),
+               TopKMeanPredictor(50, predictors),
                TopKMeanExtremePredictor(10, predictors),
                DomainPredictor(2, predictors_domains),
                DomainPredictor(5, predictors_domains),
                DomainPredictor(10, predictors_domains),
+               DomainPredictor(20, predictors_domains),
+               DomainPredictor(50, predictors_domains),
                InvScorePredictor(predictors, scores),
                InvScorePredictor(predictors, scores, squared=True)]
     return methods
