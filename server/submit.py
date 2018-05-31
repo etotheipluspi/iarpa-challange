@@ -10,10 +10,11 @@ from methods.topkmean_predictor import TopKMeanPredictor
 from methods.topkmean_extreme_predictor import TopKMeanExtremePredictor
 from methods.domain_predictor import DomainPredictor
 from methods.inverse_score_predictor import InvScorePredictor
+from methods.weighted_methods_predictor import WeightedMethodsPredictor
 
 gfc_creds = dict(
     token=os.environ['GFC_TOKEN'],
-    server='https://api.iarpagfchallenge.com'
+    server='https://api.gfc-staging.com'
 )
 
 if 'staging' not in gfc_creds['server']:
@@ -38,7 +39,10 @@ def get_methods(predictors, scores, predictors_domains):
                DomainPredictor(20, predictors_domains),
                DomainPredictor(50, predictors_domains),
                InvScorePredictor(predictors, scores),
-               InvScorePredictor(predictors, scores, squared=True)]
+               InvScorePredictor(predictors, scores, squared=True),
+               WeightedMethodsPredictor(predictors, scores, predictors_domains, weighting_function='average'),
+               WeightedMethodsPredictor(predictors, scores, predictors_domains, weighting_function='squared'),
+               WeightedMethodsPredictor(predictors, scores, predictors_domains, weighting_function='cbrt')]
     return methods
 
 
