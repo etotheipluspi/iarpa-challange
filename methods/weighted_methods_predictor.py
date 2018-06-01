@@ -44,10 +44,13 @@ class WeightedMethodsPredictor:
     def get_average_brier_score(self, session, method):
         questions = qry.get_resolved_question_ids(session)
         scores = []
-        for qid in questions:
+        for qid in questions[:5]:
             correct_answer = qry.get_correct_answer_id(session, qid)
             prediction = method.predict(session, qid)
-            s = get_score(prediction, correct_answer)
+            pred_tuple = []
+            for p in prediction:
+                pred_tuple.append((p['answer_id'], p['value']))
+            s = get_score(pred_tuple, correct_answer)
             scores.append(s)
         return np.mean(scores)
 
@@ -108,7 +111,7 @@ class WeightedMethodsPredictor:
         return new_scores
          
     def predict(self, session, question_id):
-        weights = get_predictor_weights(session)
+        weights = self.get_predictor_weights(session)
         final_prediction = []
         total = 0.0
         for w, m in zip(weights, self.methods):
@@ -121,10 +124,8 @@ class WeightedMethodsPredictor:
                     final_prediction.append(np.copy(p))
                 else:
                     final_prediction[i]['value'] += p['value']
-        pred_sum = 0.0
         for p in final_prediction:
             p['value'] /= total
-            pred_sum += p['value']
         return final_prediction
 
 
