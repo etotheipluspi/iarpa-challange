@@ -5,6 +5,12 @@ import utils.queries as qry
 import utils.submission as sbm
 from scoring.brier import get_score
 
+from median_predictor import MedianPredictor
+from median_rationale_predictor import MedianRationalePredictor
+from topkmean_predictor import TopKMeanPredictor
+from topkmean_extreme_predictor import TopKMeanExtremePredictor
+from domain_predictor import DomainPredictor
+from inverse_score_predictor import InvScorePredictor
 
 
 class WeightedMethodsPredictor:
