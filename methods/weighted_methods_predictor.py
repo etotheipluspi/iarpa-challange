@@ -13,6 +13,8 @@ from domain_predictor import DomainPredictor
 from inverse_score_predictor import InvScorePredictor
 
 
+MAX_BRIER_SCORE = 2.0
+
 class WeightedMethodsPredictor:
     """
     Submits a prediction based on weighted sum of all the current methods - 
@@ -57,7 +59,10 @@ class WeightedMethodsPredictor:
     def get_predictor_weights(self, session):
         scores = []
         for m in self.methods:
-            s = self.get_average_brier_score(session, m)
+            try:
+                s = self.get_average_brier_score(session, m)
+            except:
+                s = MAX_BRIER_SCORE
             scores.append(s)
         if self.weighting_function == 'squared':
             return self.squared_brier_to_weights(scores)
@@ -68,7 +73,7 @@ class WeightedMethodsPredictor:
         else:
             return self.squared_brier_to_weights(scores)
 
-    def average_brier_to_weights(scores):
+    def average_brier_to_weights(self, scores):
         hi = np.max(scores)
         lo = np.min(scores)
         delta = hi - lo
@@ -82,7 +87,7 @@ class WeightedMethodsPredictor:
         new_scores = np.array(new_scores) / np.sum(new_scores)
         return new_scores
 
-    def squared_brier_to_weights(scores):
+    def squared_brier_to_weights(self, scores):
         hi = np.max(scores)
         lo = np.min(scores)
         delta = hi - lo
@@ -96,7 +101,7 @@ class WeightedMethodsPredictor:
         new_scores = np.array(new_scores) / np.sum(new_scores)
         return new_scores
 
-    def cbrt_brier_to_weights(scores):
+    def cbrt_brier_to_weights(self, scores):
         hi = np.max(scores)
         lo = np.min(scores)
         delta = hi - lo
@@ -116,7 +121,10 @@ class WeightedMethodsPredictor:
         total = 0.0
         for w, m in zip(weights, self.methods):
             # array of answer_ids and vals
-            prediction = m.predcit(session, question_id)
+            try: 
+                prediction = m.predict(session, question_id)
+            except:
+                continue
             for i, p in enumerate(prediction):
                 p['value'] *= w
                 total += p['value']
