@@ -11,9 +11,13 @@ def main():
         notify('db_fail')
     try:
         methods_submitted = submit()
-        notify('submit_success',
-               methods_submitted=methods_submitted)
+        notify('submit_success', methods_submitted=methods_submitted)
     except:
+        try:  # try one more time in case of nondeterministic error
+            methods_submitted = submit()
+            notify('submit_success', methods_submitted=methods_submitted)
+        except:
+            pass
         notify('submit_fail')
 
 
