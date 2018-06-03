@@ -2,8 +2,11 @@ import os
 import requests
 
 
-def message(methods_submitted):
-    msg = 'Successully updated tables and submitted responses for methods'
+def message(methods_submitted, almost=False):
+    msg = ''
+    if almost:
+        msg += 'Calculating predictors failed, using cache. '
+    msg += 'Successully updated tables and submitted responses for methods'
     for m in methods_submitted:
         msg += ' ' + m + ','
     return msg[:-1] + '.'
@@ -12,6 +15,11 @@ def message(methods_submitted):
 def notify_success(methods_submitted):
     requests.post(os.environ['SLACK_URL'],
                   json={'text': message(methods_submitted)})
+
+
+def notify_almost_success(methods_submitted):
+    requests.post(os.environ['SLACK_URL'],
+                  json={'text': message(methods_submitted, almost=True)})
 
 
 def notify_error():

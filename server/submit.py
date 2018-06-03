@@ -1,5 +1,6 @@
 import os
 import server.database as db
+import utils.caching as cache
 import utils.queries as qry
 from datetime import datetime
 from forecast.tools.api import GfcApi
@@ -87,12 +88,26 @@ def submit_all(session, methods, question_ids):
     return [m.name for m in methods]
 
 
-def submit():
+def get_predictors(session, user_ids, use_cache):
+    if use_cache:
+        cached = cache.load_predictors()
+        predictors, scores, predictors_domains, method_scores = cached
+    else:
+        predictors, scores = qry.get_sorted_predictors(session, user_ids)
+        predictors_domains = qry.get_sorted_predictors_domains(session, user_ids)
+        method_scores = qry.get_method_scores(session)
+        cache.save_predictors(predictors,
+                              scores,
+                              predictors_domains,
+                              method_scores)
+    return predictors, scores, predictors_domains, method_scores
+
+
+def submit(use_cache=False):
     session = db.create_session()
     user_ids = qry.get_user_ids(session)
-    predictors, scores = qry.get_sorted_predictors(session, user_ids)
-    predictors_domains = qry.get_sorted_predictors_domains(session, user_ids)
-    method_scores = qry.get_method_scores(session)
+    out = get_predictors(session, user_ids, use_cache)
+    predictors, scores, predictors_domains, method_scores = out
     methods = get_methods(predictors, scores, predictors_domains, method_scores)
     question_ids = qry.get_active_question_ids(session)
     method_names = submit_all(session, methods, question_ids)
