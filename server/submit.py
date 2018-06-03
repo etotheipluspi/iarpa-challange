@@ -18,9 +18,6 @@ gfc_creds = dict(
     server='https://api.iarpagfchallenge.com'
 )
 
-if 'staging' not in gfc_creds['server']:
-    raise Exception('''Are you sure you want to submit to the production server? If so, comment these lines and re-run the submission script.''')
-
 api = GfcApi(gfc_creds['token'], gfc_creds['server'])
 
 
@@ -88,27 +85,23 @@ def submit_all(session, methods, question_ids):
     return [m.name for m in methods]
 
 
-def get_predictors(session, user_ids, use_cache):
-    if use_cache:
-        cached = cache.load_predictors()
-        predictors, scores, predictors_domains, method_scores = cached
-    else:
-        predictors, scores = qry.get_sorted_predictors(session, user_ids)
-        predictors_domains = qry.get_sorted_predictors_domains(session, user_ids)
-        method_scores = qry.get_method_scores(session)
-        cache.save_predictors(predictors,
-                              scores,
-                              predictors_domains,
-                              method_scores)
-    return predictors, scores, predictors_domains, method_scores
-
-
-def submit(use_cache=False):
+def score():
     session = db.create_session()
     user_ids = qry.get_user_ids(session)
-    out = get_predictors(session, user_ids, use_cache)
-    predictors, scores, predictors_domains, method_scores = out
-    methods = get_methods(predictors, scores, predictors_domains, method_scores)
+    predictors, scores = qry.get_sorted_predictors(session, user_ids)
+    predictors_domains = qry.get_sorted_predictors_domains(session, user_ids)
+    method_scores = qry.get_method_scores(session)
+    cache.save_predictors(predictors,
+                          scores,
+                          predictors_domains,
+                          method_scores)
+    session.close()
+
+
+def submit():
+    session = db.create_session()
+    cached = cache.load_predictors()
+    methods = get_methods(*cached)
     question_ids = qry.get_active_question_ids(session)
     method_names = submit_all(session, methods, question_ids)
     session.close()
