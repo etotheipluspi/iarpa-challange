@@ -14,7 +14,7 @@ from methods.weighted_methods_predictor import WeightedMethodsPredictor
 
 gfc_creds = dict(
     token=os.environ['GFC_TOKEN'],
-    server='https://api.gfc-staging.com'
+    server='https://api.iarpagfchallenge.com'
 )
 
 if 'staging' not in gfc_creds['server']:
@@ -23,7 +23,7 @@ if 'staging' not in gfc_creds['server']:
 api = GfcApi(gfc_creds['token'], gfc_creds['server'])
 
 
-def get_methods(predictors, scores, predictors_domains):
+def get_methods(predictors, scores, predictors_domains, method_scores):
     methods = [RandomPredictor(),
                MedianPredictor(),
                MedianRationalePredictor(),
@@ -40,9 +40,21 @@ def get_methods(predictors, scores, predictors_domains):
                DomainPredictor(50, predictors_domains),
                InvScorePredictor(predictors, scores),
                InvScorePredictor(predictors, scores, squared=True),
-               WeightedMethodsPredictor(predictors, scores, predictors_domains, weighting_function='average'),
-               WeightedMethodsPredictor(predictors, scores, predictors_domains, weighting_function='squared'),
-               WeightedMethodsPredictor(predictors, scores, predictors_domains, weighting_function='cbrt')]
+               WeightedMethodsPredictor(predictors,
+                                        scores,
+                                        predictors_domains,
+                                        method_scores,
+                                        weighting_function='average'),
+               WeightedMethodsPredictor(predictors,
+                                        scores,
+                                        predictors_domains,
+                                        method_scores,
+                                        weighting_function='squared'),
+               WeightedMethodsPredictor(predictors,
+                                        scores,
+                                        predictors_domains,
+                                        method_scores,
+                                        weighting_function='cbrt')]
     return methods
 
 
@@ -80,7 +92,8 @@ def submit():
     user_ids = qry.get_user_ids(session)
     predictors, scores = qry.get_sorted_predictors(session, user_ids)
     predictors_domains = qry.get_sorted_predictors_domains(session, user_ids)
-    methods = get_methods(predictors, scores, predictors_domains)
+    method_scores = qry.get_method_scores(session)
+    methods = get_methods(predictors, scores, predictors_domains, method_scores)
     question_ids = qry.get_active_question_ids(session)
     method_names = submit_all(session, methods, question_ids)
     session.close()
