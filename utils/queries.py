@@ -135,7 +135,7 @@ def get_score(session, predictor_id, question_id, is_method=False):
         preds = get_preds(session, predictor_id, question_id)
     if None in [p[1] for p in preds]:
         return MAX_BRIER_SCORE
-    correct_answer_id = get_correct_answer_id(session, question_id, answer_ids)
+    correct_answer_id = get_correct_answer_id(session, question_id)
     use_ordinal_scoring = get_use_ordinal_scoring(session, question_id)
     if use_ordinal_scoring:
         return brier.get_ordinal_score(preds, correct_answer_id)
