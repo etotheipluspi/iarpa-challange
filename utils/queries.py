@@ -76,7 +76,7 @@ def get_our_pred(session, method_name, question_id, answer_id):
     return query[0] if query is not None else None
 
 
-def get_our_preds(session, method_name, question_id):
+def get_our_preds(session, method_name, question_id, answer_ids):
     preds = []
     answer_ids = get_answer_ids(session, question_id)
     for answer_id in answer_ids:
@@ -129,12 +129,13 @@ def get_method_score(session, method_name, question_ids):
 
 def get_score(session, predictor_id, question_id, is_method=False):
     if is_method:
-        preds = get_our_preds(session, predictor_id, question_id)
+        answer_ids = get_answer_ids(session, question_id)
+        preds = get_our_preds(session, predictor_id, question_id, answer_ids)
     else:
         preds = get_preds(session, predictor_id, question_id)
     if None in [p[1] for p in preds]:
         return MAX_BRIER_SCORE
-    correct_answer_id = get_correct_answer_id(session, question_id)
+    correct_answer_id = get_correct_answer_id(session, question_id, answer_ids)
     use_ordinal_scoring = get_use_ordinal_scoring(session, question_id)
     if use_ordinal_scoring:
         return brier.get_ordinal_score(preds, correct_answer_id)
