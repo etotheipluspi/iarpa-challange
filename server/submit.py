@@ -1,4 +1,5 @@
 import os
+import numpy as np
 import server.database as db
 import utils.caching as cache
 import utils.queries as qry
@@ -103,6 +104,7 @@ def submit():
     cached = cache.load_predictors()
     methods = get_methods(*cached)
     question_ids = qry.get_active_question_ids(session)
+    np.random.shuffle(question_ids)
     method_names = submit_all(session, methods, question_ids)
     session.close()
     return method_names
