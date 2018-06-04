@@ -8,7 +8,7 @@ def message(msg_type, methods_submitted):
     elif msg_type == 'db_fail':
         return 'Updating database failed.'
     elif msg_type == 'score_success':
-        return 'Scoring predictors and methods successfully.'
+        return 'Scoring predictors and methods successful.'
     elif msg_type == 'score_fail':
         return 'Scoring predictors and methods failed.'
     elif msg_type == 'submit_success':
