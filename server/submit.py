@@ -30,13 +30,11 @@ def get_methods(predictors, scores, predictors_domains, method_scores):
                TopKMeanPredictor(5, predictors),
                TopKMeanPredictor(10, predictors),
                TopKMeanPredictor(20, predictors),
-               TopKMeanPredictor(50, predictors),
                TopKMeanExtremePredictor(10, predictors),
                DomainPredictor(2, predictors_domains),
                DomainPredictor(5, predictors_domains),
                DomainPredictor(10, predictors_domains),
                DomainPredictor(20, predictors_domains),
-               DomainPredictor(50, predictors_domains),
                InvScorePredictor(predictors, scores),
                InvScorePredictor(predictors, scores, squared=True),
                WeightedMethodsPredictor(predictors,
@@ -75,10 +73,20 @@ def submit_all(session, methods, question_ids):
         for method in methods:
             print 'Submitting to question', qid, 'using method', method.name
             preds = method.predict(session, qid)
-            response = api.submit_forecast(qid, method.name, preds)
+            try:
+                response = api.submit_forecast(qid, method.name, preds)
+            except:
+                # Recycle api
+                print 'Error. Retrying by reconnecting to GFC API.'
+                api = None
+                api = GfcApi(gfc_creds['token'], gfc_creds['server'])
+                response = api.submit_forecast(qid, method.name, preds)
             if 'errors' not in response:
                 print 'Success'
                 log(session, qid, method.name, preds)
+            elif 'question' in response['errors']:
+                print response
+                break
             else:
                 print response
             print
