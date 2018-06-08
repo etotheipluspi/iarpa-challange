@@ -8,6 +8,10 @@ from forecast.tools.api import GfcApi
 from methods.random_predictor import RandomPredictor
 from methods.median_predictor import MedianPredictor
 from methods.median_rationale_predictor import MedianRationalePredictor
+from methods.mean_predictor import MeanPredictor
+from methods.mean_rationale_predictor import MeanRationalePredictor
+from methods.bayes_mean_predictor import BayesMeanPredictor
+from methods.bayes_mean_rationale_predictor import BayesMeanRationalePredictor
 from methods.topkmean_predictor import TopKMeanPredictor
 from methods.topkmean_extreme_predictor import TopKMeanExtremePredictor
 from methods.domain_predictor import DomainPredictor
@@ -21,11 +25,14 @@ gfc_creds = dict(
 
 api = GfcApi(gfc_creds['token'], gfc_creds['server'])
 
-
 def get_methods(predictors, scores, predictors_domains, method_scores):
     methods = [RandomPredictor(),
                MedianPredictor(),
                MedianRationalePredictor(),
+               MeanPredictor(),
+               MeanRationalePredictor(),
+               BayesMeanPredictor(), 
+               BayesMeanRationalePredictor(),
                TopKMeanPredictor(2, predictors),
                TopKMeanPredictor(5, predictors),
                TopKMeanPredictor(10, predictors),

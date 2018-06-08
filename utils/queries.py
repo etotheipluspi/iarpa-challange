@@ -153,14 +153,14 @@ def get_user_score(session, user_id, question_ids):
 
 
 def get_sorted_predictors_helper(session, user_ids, question_ids):
-    print 'Scoring predictors...'
+    print('Scoring predictors...')
     predictors = []
     for idx, user_id in enumerate(user_ids):
-        print 'Scoring predictor', idx + 1, 'of', len(user_ids)
+        print('Scoring predictor', idx + 1, 'of', len(user_ids))
         score = get_user_score(session, user_id, question_ids)
         predictors.append((user_id, score))
     sorted_predictors = sorted(predictors, key=lambda x: x[1])
-    print 'Scoring predictors complete.'
+    print('Scoring predictors complete.')
     return zip(*sorted_predictors)
 
 
@@ -175,24 +175,24 @@ def get_sorted_predictors_domain(session, user_ids, domain):
 
 
 def get_sorted_predictors_domains(session, user_ids):
-    print 'Scoring predictors on each domain...'
+    print('Scoring predictors on each domain...')
     domains = get_domains(session)
     predictors_domains = {}
     for idx, d in enumerate(domains):
-        print 'Scoring domain', idx + 1, 'of', len(domains)
+        print('Scoring domain', idx + 1, 'of', len(domains))
         predictors_domains[d] = get_sorted_predictors_domain(session, user_ids, d)
-    print 'Domain scoring complete.'
+    print('Domain scoring complete.')
     return predictors_domains
 
 
 def get_method_scores(session):
-    print 'Scoring our methods...'
+    print('Scoring our methods...')
     method_names = get_method_names(session)
     method_scores = {}
     question_ids = get_resolved_question_ids(session)
     for idx, name in enumerate(method_names):
-        print 'Scoring method', idx + 1, 'of', len(method_names), name
+        print('Scoring method', idx + 1, 'of', len(method_names), name)
         method_score = get_method_score(session, name, question_ids)
         method_scores[name] = method_score
-    print 'Scoring our methods complete.'
+    print('Scoring our methods complete.')
     return method_scores
