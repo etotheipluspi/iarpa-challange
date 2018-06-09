@@ -20,16 +20,17 @@ def get_question_domain(session, question_id):
 
 
 def get_resolved_question_ids(session, domain=None):
+    query = (session.query(db.Answers.question_id)
+                    .filter(db.Answers.is_correct)
+                    .distinct())
+    resolved = [x[0] for x in query]
     if domain is None:
-        query = (session.query(db.Answers.question_id)
-                        .filter(db.Answers.is_correct)
-                        .distinct())
-    else:
-        query = (session.query(db.Answers.question_id)
-                        .filter(db.Answers.is_correct)
-                        .filter(db.Questions.domain == domain)
-                        .distinct())
-    return [x[0] for x in query]
+        return resolved
+    query = (session.query(db.Questions.question_id)
+                    .filter(db.Questions.domain == domain)
+                    .distinct())
+    qids_domain = [x[0] for x in query]
+    return list(set(resolved) & set(qids_domain))
 
 
 def get_active_question_ids(session):
@@ -116,7 +117,8 @@ def get_use_ordinal_scoring(session, question_id):
 
 def get_method_names(session):
     query = (session.query(db.OurPredictions.method_name).distinct())
-    return [x[0] for x in query if 'sisl' not in x[0] and x[0] != 'random']
+    return [x[0] for x in query if 'sisl' not in x[0]]
+    # return [x[0] for x in query if 'sisl' not in x[0] and x[0] != 'random' and '50' not in x[0]]
 
 
 def get_method_score(session, method_name, question_ids):
