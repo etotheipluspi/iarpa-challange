@@ -4,7 +4,7 @@ from methods.bayes_mean_predictor import BayesMeanPredictor
 
 class BayesMeanRationalePredictor:
     """
-    Submits median of all predictions that have a non-empty 'rationale' field.
+    Submits bayes mean of all predictions that have a non-empty 'rationale' field.
     """
 
     def __init__(self):
@@ -13,5 +13,5 @@ class BayesMeanRationalePredictor:
 
     def predict(self, session, question_id):
         return self.bayes_mean_rationale.predict(session,
-                                             question_id,
-                                             use_rationale=True)
+                                                 question_id,
+                                                 use_rationale=True)

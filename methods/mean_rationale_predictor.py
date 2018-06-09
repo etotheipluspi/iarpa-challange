@@ -4,7 +4,7 @@ from methods.mean_predictor import MeanPredictor
 
 class MeanRationalePredictor:
     """
-    Submits median of all predictions that have a non-empty 'rationale' field.
+    Submits mean of all predictions that have a non-empty 'rationale' field.
     """
 
     def __init__(self):
@@ -13,5 +13,5 @@ class MeanRationalePredictor:
 
     def predict(self, session, question_id):
         return self.mean_rationale.predict(session,
-                                             question_id,
-                                             use_rationale=True)
+                                           question_id,
+                                           use_rationale=True)
