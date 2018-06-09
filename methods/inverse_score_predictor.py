@@ -5,7 +5,7 @@ import utils.submission as sbm
 
 class InvScorePredictor:
     """
-    Submits predictions weighted by inverse score of the top 10
+    Submits predictions weighted by inverse score of the top 50
     experts (when no score, take max brier score of 2, so weight is 0.5).
     """
 
@@ -49,7 +49,7 @@ class InvScorePredictor:
             norm_factor = 0.
         else:
             is_binary = False
-        for user_id, score in zip(self.sorted_predictors[:10], self.scores[:10]):
+        for user_id, score in zip(self.sorted_predictors[:50], self.scores[:50]):
             user_pred = self.to_list(qry.get_preds(session,
                                                    user_id,
                                                    question_id,
