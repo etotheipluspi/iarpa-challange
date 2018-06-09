@@ -117,7 +117,7 @@ def get_use_ordinal_scoring(session, question_id):
 
 def get_method_names(session):
     query = (session.query(db.OurPredictions.method_name).distinct())
-    return [x[0] for x in query if 'sisl' not in x[0]]
+    return [x[0] for x in query if 'sisl' not in x[0] and 'random' not in x[0]]
 
 
 def get_method_score(session, method_name, question_ids):
