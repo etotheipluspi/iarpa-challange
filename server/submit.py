@@ -23,7 +23,6 @@ gfc_creds = dict(
     server='https://api.iarpagfchallenge.com'
 )
 
-api = GfcApi(gfc_creds['token'], gfc_creds['server'])
 
 def get_methods(predictors, scores, predictors_domains, method_scores):
     methods = [RandomPredictor(),
@@ -31,17 +30,19 @@ def get_methods(predictors, scores, predictors_domains, method_scores):
                MedianRationalePredictor(),
                MeanPredictor(),
                MeanRationalePredictor(),
-               BayesMeanPredictor(), 
+               BayesMeanPredictor(),
                BayesMeanRationalePredictor(),
                TopKMeanPredictor(2, predictors),
                TopKMeanPredictor(5, predictors),
                TopKMeanPredictor(10, predictors),
                TopKMeanPredictor(20, predictors),
+               TopKMeanPredictor(50, predictors),
                TopKMeanExtremePredictor(10, predictors),
                DomainPredictor(2, predictors_domains),
                DomainPredictor(5, predictors_domains),
                DomainPredictor(10, predictors_domains),
                DomainPredictor(20, predictors_domains),
+               DomainPredictor(50, predictors_domains),
                InvScorePredictor(predictors, scores),
                InvScorePredictor(predictors, scores, squared=True),
                WeightedMethodsPredictor(predictors,
@@ -75,6 +76,7 @@ def log(session, question_id, method_name, preds):
 
 def submit_all(session, methods, question_ids):
     print 'Submitting to questions...'
+    api = GfcApi(gfc_creds['token'], gfc_creds['server'])
     for idx, qid in enumerate(question_ids):
         print 'Submitting to question number', idx + 1, 'of', len(question_ids)
         for method in methods:
