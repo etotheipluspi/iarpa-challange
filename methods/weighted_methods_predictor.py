@@ -31,32 +31,29 @@ class WeightedMethodsPredictor:
             scores[name] /= total
 
     def average_brier_to_weights(self, scores):
-        hi = np.max([x for x in scores.values() if not np.isnan(x)])
         new_scores = {}
         for name, s in scores.items():
             # shift the scores
             if not np.isnan(s):
-                new_scores[name] = hi - s
+                new_scores[name] = 1 / (s + 0.001)
         self.normalize(new_scores)
         return new_scores
 
     def squared_brier_to_weights(self, scores):
-        hi = np.max([x for x in scores.values() if not np.isnan(x)])
         new_scores = {}
         for name, s in scores.items():
             # shift the scores
             if not np.isnan(s):
-                new_scores[name] = np.sqrt(hi) - np.sqrt(s)
+                new_scores[name] = 1 / (s + 0.001) ** 2
         self.normalize(new_scores)
         return new_scores
 
     def cbrt_brier_to_weights(self, scores):
-        hi = np.max([x for x in scores.values() if not np.isnan(x)])
         new_scores = {}
         for name, s in scores.items():
             # shift the scores
             if not np.isnan(s):
-                new_scores[name] = np.cbrt(hi) - np.cbrt(s)
+                new_scores[name] = 1 / (s + 0.001) ** 3
         self.normalize(new_scores)
         return new_scores
 
