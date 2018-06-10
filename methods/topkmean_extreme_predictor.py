@@ -12,7 +12,10 @@ class TopKMeanExtremePredictor:
         self.topk_predictor = TopKMeanPredictor(k, sorted_predictors)
         self.name = self.topk_predictor.name + '_extreme'
 
-    def predict(self, session, question_id):
-        pred = self.topk_predictor.predict(session, question_id)
+    def predict(self, session, question_id, answer_ids, cache):
+        pred = self.topk_predictor.predict(session,
+                                           question_id,
+                                           answer_ids,
+                                           cache)
         extremize(pred)
         return pred

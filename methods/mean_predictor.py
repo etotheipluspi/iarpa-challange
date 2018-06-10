@@ -1,6 +1,5 @@
 from __future__ import division
 import numpy as np
-import utils.queries as qry
 import utils.submission as sbm
 from server.database import Predictions
 from methods.random_predictor import RandomPredictor
@@ -24,8 +23,7 @@ class MeanPredictor:
                                 .filter(Predictions.answer_id == answer_id))
         return np.mean(preds)
 
-    def predict(self, session, question_id, use_rationale=False):
-        answer_ids = qry.get_answer_ids(session, question_id)
+    def predict(self, session, question_id, answer_ids, cache, use_rationale=False):
         try:
             pred = [{'answer_id': a,
                      'value': self.get_mean_prediction(session, a, use_rationale)}

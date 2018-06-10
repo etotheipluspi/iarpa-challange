@@ -11,7 +11,9 @@ class MedianRationalePredictor:
         self.name = 'median_rationale'
         self.median_predictor = MedianPredictor()
 
-    def predict(self, session, question_id):
+    def predict(self, session, question_id, answer_ids, cache):
         return self.median_predictor.predict(session,
                                              question_id,
+                                             answer_ids,
+                                             cache,
                                              use_rationale=True)

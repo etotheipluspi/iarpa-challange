@@ -9,9 +9,11 @@ class BayesMeanRationalePredictor:
 
     def __init__(self):
         self.name = 'bayes_mean_rationale'
-        self.bayes_mean_rationale = BayesMeanPredictor()
+        self.bayes_mean_predictor = BayesMeanPredictor()
 
-    def predict(self, session, question_id):
-        return self.bayes_mean_rationale.predict(session,
+    def predict(self, session, question_id, answer_ids, cache):
+        return self.bayes_mean_predictor.predict(session,
                                                  question_id,
+                                                 answer_ids,
+                                                 cache,
                                                  use_rationale=True)

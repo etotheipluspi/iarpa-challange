@@ -62,19 +62,23 @@ class WeightedMethodsPredictor:
             idx = [x['answer_id'] for x in pred].index(p['answer_id'])
             p['value'] += pred[idx]['value']
 
-    def get_method_pred(self, session, method_name, question_id, answer_ids):
+    def get_method_pred(self, session, method_name, question_id, answer_ids, cache):
         pred = qry.get_our_preds(session,
                                  method_name,
                                  question_id,
-                                 answer_ids)
+                                 answer_ids,
+                                 cache=cache)
         return [{'answer_id': aid, 'value': p} for (aid, p) in pred]
 
-    def predict(self, session, question_id):
-        answer_ids = qry.get_answer_ids(session, question_id)
+    def predict(self, session, question_id, answer_ids, cache):
         final_pred = [{'answer_id': aid, 'value': 0} for aid in answer_ids]
         total = 0.
         for name, weight in self.method_scores.items():
-            pred = self.get_method_pred(session, name, question_id, answer_ids)
+            pred = self.get_method_pred(session,
+                                        name,
+                                        question_id,
+                                        answer_ids,
+                                        cache)
             for p in pred:
                 p['value'] *= weight
             if len(answer_ids) < 1:

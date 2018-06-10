@@ -1,5 +1,4 @@
 import numpy as np
-import utils.queries as qry
 
 
 class RandomPredictor:
@@ -7,8 +6,7 @@ class RandomPredictor:
     def __init__(self):
         self.name = 'random'
 
-    def predict(self, session, question_id):
-        answer_ids = qry.get_answer_ids(session, question_id)
+    def predict(self, session, question_id, answer_ids, cache):
         if len(answer_ids) == 1:
             return [{'answer_id': answer_ids[0],
                      'value': float(np.random.randint(2))}]

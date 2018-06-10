@@ -66,45 +66,61 @@ def get_ends_at(session, question_id):
     return query[0]
 
 
-def get_our_pred(session, method_name, question_id, answer_id):
+def get_our_pred(session, method_name, question_id, answer_id, cache):
     ends_at = get_ends_at(session, question_id)
-    query = (session.query(db.OurPredictions.forecasted_probability)
-                    .filter(db.OurPredictions.method_name == method_name)
-                    .filter(db.OurPredictions.question_id == question_id)
-                    .filter(db.OurPredictions.answer_id == answer_id)
-                    .filter(db.OurPredictions.submitted_at < ends_at)
-                    .order_by(db.OurPredictions.submitted_at.desc())).first()
-    return query[0] if query is not None else None
+    if (method_name, question_id, answer_id) in cache:
+        return cache[(method_name, question_id, answer_id)]
+    else:
+        query = (session.query(db.OurPredictions.forecasted_probability)
+                        .filter(db.OurPredictions.method_name == method_name)
+                        .filter(db.OurPredictions.question_id == question_id)
+                        .filter(db.OurPredictions.answer_id == answer_id)
+                        .filter(db.OurPredictions.submitted_at < ends_at)
+                        .order_by(db.OurPredictions.submitted_at.desc())).first()
+        pred = query[0] if query is not None else None
+        cache[(method_name, question_id, answer_id)] = pred
+        return pred
 
 
-def get_our_preds(session, method_name, question_id, answer_ids):
+def get_our_preds(session, method_name, question_id, answer_ids, cache={}):
     preds = []
-    answer_ids = get_answer_ids(session, question_id)
     for answer_id in answer_ids:
-        pred = get_our_pred(session, method_name, question_id, answer_id)
+        pred = get_our_pred(session,
+                            method_name,
+                            question_id,
+                            answer_id,
+                            cache)
         preds.append((answer_id, pred))
     return preds
 
 
-def get_pred(session, user_id, question_id, answer_id, predict):
+def get_pred(session, user_id, question_id, answer_id, predict, cache):
     if predict:
         ends_at = datetime.utcnow()
     else:
         ends_at = get_ends_at(session, question_id)
-    query = (session.query(db.Predictions.forecasted_probability)
-                    .filter(db.Predictions.user_id == user_id)
-                    .filter(db.Predictions.question_id == question_id)
-                    .filter(db.Predictions.answer_id == answer_id)
-                    .filter(db.Predictions.submitted_at < ends_at)
-                    .order_by(db.Predictions.submitted_at.desc())).first()
-    return query[0] if query is not None else None
+    if (user_id, question_id, answer_id) in cache:
+        return cache[(user_id, question_id, answer_id)]
+    else:
+        query = (session.query(db.Predictions.forecasted_probability)
+                        .filter(db.Predictions.user_id == user_id)
+                        .filter(db.Predictions.question_id == question_id)
+                        .filter(db.Predictions.answer_id == answer_id)
+                        .filter(db.Predictions.submitted_at < ends_at)
+                        .order_by(db.Predictions.submitted_at.desc())).first()
+        pred = query[0] if query is not None else None
+        cache[(user_id, question_id, answer_id)] = pred
+        return pred
 
 
-def get_preds(session, user_id, question_id, predict=False):
+def get_preds(session, user_id, question_id, answer_ids, predict=False, cache={}):
     preds = []
-    answer_ids = get_answer_ids(session, question_id)
     for answer_id in answer_ids:
-        pred = get_pred(session, user_id, question_id, answer_id, predict)
+        pred = get_pred(session,
+                        user_id,
+                        question_id,
+                        answer_id,
+                        predict, cache)
         preds.append((answer_id, pred))
     return preds
 
@@ -125,15 +141,16 @@ def get_method_score(session, method_name, question_ids):
     for question_id in question_ids:
             score = get_score(session, method_name, question_id, is_method=True)
             scores.append(score)
-    return np.mean([x for x in scores if x != MAX_BRIER_SCORE])
+    scores = [x for x in scores if x != MAX_BRIER_SCORE]
+    return np.mean(scores) if scores else MAX_BRIER_SCORE
 
 
 def get_score(session, predictor_id, question_id, is_method=False):
+    answer_ids = get_answer_ids(session, question_id)
     if is_method:
-        answer_ids = get_answer_ids(session, question_id)
         preds = get_our_preds(session, predictor_id, question_id, answer_ids)
     else:
-        preds = get_preds(session, predictor_id, question_id)
+        preds = get_preds(session, predictor_id, question_id, answer_ids)
     if None in [p[1] for p in preds]:
         return MAX_BRIER_SCORE
     correct_answer_id = get_correct_answer_id(session, question_id)

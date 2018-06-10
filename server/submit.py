@@ -76,12 +76,14 @@ def log(session, question_id, method_name, preds):
 
 def submit_all(session, methods, question_ids):
     print 'Submitting to questions...'
+    pred_cache = {}
     api = GfcApi(gfc_creds['token'], gfc_creds['server'])
     for idx, qid in enumerate(question_ids):
         print 'Submitting to question number', idx + 1, 'of', len(question_ids)
+        aids = qry.get_answer_ids(session, qid)
         for method in methods:
             print 'Submitting to question', qid, 'using method', method.name
-            preds = method.predict(session, qid)
+            preds = method.predict(session, qid, aids, pred_cache)
             try:
                 response = api.submit_forecast(qid, method.name, preds)
             except:

@@ -41,8 +41,7 @@ class InvScorePredictor:
     def to_list(self, user_pred):
         return [list(x) for x in user_pred]
 
-    def predict(self, session, question_id):
-        answer_ids = qry.get_answer_ids(session, question_id)
+    def predict(self, session, question_id, answer_ids, cache):
         user_preds = []
         if len(answer_ids) == 1:
             is_binary = True
@@ -53,7 +52,9 @@ class InvScorePredictor:
             user_pred = self.to_list(qry.get_preds(session,
                                                    user_id,
                                                    question_id,
-                                                   predict=True))
+                                                   answer_ids,
+                                                   predict=True,
+                                                   cache=cache))
             for p in user_pred:
                 if p[1] is not None:
                     if self.squared:
